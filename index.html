@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GJW Store - Male</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+.star { transition: 0.3s; cursor: pointer; font-size: 2rem; }
+.star:hover { transform: scale(1.3); }
+.user-msg { text-align: right; }
+</style>
+</head>
+<body class="bg-black text-white font-sans p-4 sm:p-6">
+
+<!-- HEADER -->
+<header class="flex flex-col sm:flex-row items-center justify-between mb-6 sm:mb-10">
+  <div class="flex items-center gap-3">
+    <img src="imagegwjst.png" alt="GJW Logo" class="h-16 w-16" />
+    <h1 class="text-xl sm:text-2xl font-bold">GJW Store - Male Section</h1>
+  </div>
+  <div class="flex gap-4 items-center">
+    <a href="female.html" class="bg-purple-600 px-3 py-2 rounded-xl text-white">Female Section</a>
+    <button id="cart-btn" class="rounded-2xl bg-green-600 px-4 py-2 mt-2 sm:mt-0">Cart (0)</button>
+  </div>
+</header>
+
+<!-- CATEGORY NAVIGATION -->
+<section class="mb-10 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center" id="categories">
+  <div class="category bg-green-600 rounded-2xl p-6 cursor-pointer" data-category="tops">
+    <h2 class="text-xl font-bold mb-1">T-Shirts (Tops)</h2>
+    <p class="text-black font-semibold">Available Now 👕</p>
+  </div>
+  <div class="category bg-green-600 rounded-2xl p-6 cursor-pointer" data-category="caps">
+    <h2 class="text-xl font-bold mb-1">Caps</h2>
+    <p class="text-black font-semibold">Available Now 🧢</p>
+  </div>
+  <div class="category bg-zinc-900 rounded-2xl p-6 cursor-pointer" data-category="trousers">
+    <h2 class="text-xl font-bold mb-1">Trousers</h2>
+    <p class="text-red-400 font-semibold">Coming Soon 👖</p>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<main id="products-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-32"></main>
+
+<!-- CART MODAL -->
+<div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center hidden z-50">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md relative">
+    <button id="close-cart" class="absolute top-4 right-4">X</button>
+    <h2 class="text-xl font-bold mb-4">Your Cart</h2>
+    <div id="cart-items" class="space-y-3 max-h-64 overflow-y-auto"></div>
+    <div class="mt-4 flex justify-between font-bold">
+      <span>Total Items:</span> <span id="total-items">0</span>
+    </div>
+    <div class="mt-1 flex justify-between font-bold">
+      <span>Total Price:</span> <span id="total-price">₦0</span>
+    </div>
+    <button id="checkout-whatsapp" class="w-full mt-4 bg-green-600 rounded-2xl px-4 py-2">
+      📦 Checkout on WhatsApp
+    </button>
+  </div>
+</div>
+
+<!-- NOTIFY ME POPUP -->
+<div id="notify-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden justify-center items-center z-50">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-80">
+    <h2 class="text-xl font-bold mb-4 text-center">🔔 Notify Me</h2>
+    <p class="text-zinc-300 text-center mb-3">Enter your number to get notified when it's available</p>
+    <input id="notify-input" type="text" placeholder="Phone Number" class="w-full p-2 text-black rounded mb-3">
+    <button id="notify-send" class="bg-green-600 w-full py-2 rounded-xl">Submit</button>
+    <button id="notify-close" class="text-zinc-400 text-center w-full mt-3">Cancel</button>
+  </div>
+</div>
+
+<!-- RATING POPUP -->
+<div id="rating-popup" class="hidden fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50">
+  <div class="bg-white text-black w-80 p-6 rounded-2xl text-center">
+    <h2 class="text-xl font-bold mb-3">⭐ Rate Your Experience</h2>
+    <p class="text-sm mb-3">How was your shopping experience?</p>
+    <div class="flex justify-center gap-1 text-2xl mb-3 cursor-pointer">
+      <span class="star" onclick="rate(1)">⭐</span>
+      <span class="star" onclick="rate(2)">⭐</span>
+      <span class="star" onclick="rate(3)">⭐</span>
+      <span class="star" onclick="rate(4)">⭐</span>
+      <span class="star" onclick="rate(5)">⭐</span>
+    </div>
+    <textarea id="rating-feedback" class="w-full border p-2 rounded mb-3 text-black"
+      placeholder="Your feedback (optional)..."></textarea>
+    <button onclick="submitRating()" class="bg-green-600 text-white w-full py-2 rounded-xl font-bold">Submit</button>
+    <button onclick="closeRatingPopup()" class="bg-gray-300 w-full py-2 rounded-xl mt-2">Cancel</button>
+  </div>
+</div>
+
+<!-- CHATBOT -->
+<div id="chat-container" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+  <button id="chat-toggle" class="bg-green-600 w-16 h-16 rounded-full text-white text-2xl">💬</button>
+  <div id="chat-window" class="mt-2 w-72 bg-zinc-900 rounded-2xl shadow-xl p-4 hidden">
+    <h3 class="font-semibold mb-2">GJW AI Assistant</h3>
+    <div id="chat-box" class="h-40 overflow-y-auto space-y-2 mb-3 text-white"></div>
+    <input id="chat-input" type="text" placeholder="Type your message..." class="p-2 rounded-xl text-black w-full mb-2">
+    <button id="send-msg" class="bg-green-600 w-full py-2 rounded-xl">Send</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="mt-16 border-t border-zinc-800 pt-6 text-center text-sm text-zinc-400">
+  <p class="font-semibold text-white mb-2">Customer Care</p>
+  📞 08133497753 | 📞 09046536933 | 📞 07085944521
+  <p class="mt-4">© 2025 GJW Store. Fit First.</p>
+</footer>
+
+<script>
+/* -------- PRODUCTS & CATEGORY -------- */
+const productData = {
+  tops: [
+    { name: "GJW Male Polo", desc: "Stylish male polo", img: "jgg.png", price: 10000 },
+    { name: "GJW Signature Top", desc: "Casual round neck T-shirt", img: "sss.png", price: 9000 },
+  ],
+  caps: [
+    { name: "GJW Male Cap", desc: "Classic male cap", img: "fgg.png", price: 12000 },
+    { name: "GJW Sport Cap", desc: "Sporty design", img: "vvv.png", price: 14000 }
+  ],
+  trousers: "comingsoon"
+};
+
+const productsContainer = document.getElementById("products-container");
+
+function loadCategory(type){
+  productsContainer.innerHTML = "";
+  if(productData[type] === "comingsoon"){
+    productsContainer.innerHTML = `
+      <div class="col-span-3 text-center mt-10">
+        <h2 class="text-2xl font-bold">🔔 Coming Soon</h2>
+        <p class="text-zinc-400 mb-4">This section is being prepared...</p>
+        <button id="notify-btn" class="bg-green-600 px-4 py-2 rounded-xl">Notify Me</button>
+      </div>`;
+    document.getElementById("notify-btn").onclick = ()=> {
+      document.getElementById("notify-popup").classList.remove("hidden");
+    };
+    return;
+  }
+
+  productData[type].forEach((product, index) => {
+    productsContainer.innerHTML += `
+      <div class="bg-zinc-900 p-4 rounded-2xl shadow-lg">
+        <img src="${product.img}" class="rounded-xl mb-4">
+        <h2 class="text-lg font-semibold">${product.name}</h2>
+        <p class="text-sm text-zinc-400">${product.desc}</p>
+        <p class="font-bold mt-2">₦${product.price}</p>
+        <button class="add-to-cart bg-green-600 px-3 py-2 rounded-xl mt-4"
+          data-type="${type}" data-product="${index}">Add to Cart</button>
+      </div>`;
+  });
+
+  cartButtons();
+}
+
+document.querySelectorAll(".category").forEach(cat=>{
+  cat.onclick = ()=>{
+    document.querySelectorAll(".category").forEach(c=>c.classList.remove("bg-green-600"));
+    cat.classList.add("bg-green-600");
+    loadCategory(cat.dataset.category);
+  };
+});
+loadCategory("tops");
+
+/* -------- CART & WHATSAPP CHECKOUT -------- */
+let cart = [];
+const cartBtn = document.getElementById("cart-btn");
+const cartModal = document.getElementById("cart-modal");
+const closeCart = document.getElementById("close-cart");
+
+function cartButtons(){
+  document.querySelectorAll(".add-to-cart").forEach(btn=>{
+    btn.onclick = e=>{
+      let type = e.target.dataset.type;
+      let product = productData[type][e.target.dataset.product];
+      let found = cart.find(i=>i.name === product.name);
+      found ? found.qty++ : cart.push({...product, qty:1});
+      updateCart();
+    };
+  });
+}
+
+function updateCart(){
+  const items = document.getElementById("cart-items");
+  items.innerHTML = "";
+  cart.forEach((item,i)=>{
+    items.innerHTML += `
+      <div class="flex justify-between items-center">
+        ${item.name} (x${item.qty}) - ₦${item.price*item.qty}
+        <button onclick="removeItem(${i})" class="bg-red-600 px-2 rounded">X</button>
+      </div>`;
+  });
+  document.getElementById("total-items").textContent = cart.reduce((a,b)=>a+b.qty,0);
+  document.getElementById("total-price").textContent = "₦" + cart.reduce((a,b)=>a+b.price*b.qty,0);
+  cartBtn.textContent = "Cart ("+cart.reduce((a,b)=>a+b.qty,0)+")";
+}
+
+function removeItem(i){ cart.splice(i,1); updateCart(); }
+
+cartBtn.onclick = ()=> cartModal.classList.remove("hidden");
+closeCart.onclick = ()=> cartModal.classList.add("hidden");
+
+document.getElementById("checkout-whatsapp").onclick = ()=>{
+  if(cart.length === 0) return alert("Your cart is empty!");
+  let message = "Hello, I want to place an order:\n\n";
+  cart.forEach(i => message += `${i.name} (x${i.qty}) - ₦${i.price*i.qty}\n`);
+  message += `\nTotal: ${document.getElementById("total-price").textContent}`;
+  window.open(`https://wa.me/2349046536933?text=${encodeURIComponent(message)}`, "_blank");
+};
+
+/* -------- NOTIFY ME POPUP -------- */
+document.getElementById("notify-close").onclick = ()=> document.getElementById("notify-popup").classList.add("hidden");
+document.getElementById("notify-send").onclick = ()=>{
+  let num = document.getElementById("notify-input").value.trim();
+  if(!num) return alert("Enter your phone number.");
+  alert("Thanks! You’ll be notified when it drops.");
+  document.getElementById("notify-popup").classList.add("hidden");
+};
+
+/* -------- AI CHATBOT -------- */
+const chatToggle = document.getElementById("chat-toggle");
+const chatWindow = document.getElementById("chat-window");
+const chatBox = document.getElementById("chat-box");
+const chatInput = document.getElementById("chat-input");
+const sendMsg = document.getElementById("send-msg");
+
+function getProductMessage(category) {
+  if (productData[category] === "comingsoon") return `The ${category} are coming soon 👖. Use 'Notify Me' to get updates.`;
+  else return productData[category].map(p => `${p.name} - ₦${p.price}`).join("\n");
+}
+
+function handleMessage(msg) {
+  const lowerMsg = msg.toLowerCase();
+  let reply = "Sorry, I didn't understand. Ask about Tops, Caps, Trousers, delivery, or sizing.";
+  if (lowerMsg.includes("top") || lowerMsg.includes("t-shirt")) reply = getProductMessage("tops");
+  else if (lowerMsg.includes("cap")) reply = getProductMessage("caps");
+  else if (lowerMsg.includes("trouser") || lowerMsg.includes("pants")) reply = getProductMessage("trousers");
+  else if (lowerMsg.includes("delivery")) reply = "We deliver nationwide! 🚚";
+  else if (lowerMsg.includes("size")) reply = "Sizes available from S to XXL. Need help with sizing?";
+  return reply;
+}
+
+sendMsg.onclick = () => {
+  let msg = chatInput.value.trim();
+  if (!msg) return;
+  chatBox.innerHTML += `<div class="user-msg">${msg}</div>`;
+  chatInput.value = "";
+  const reply = handleMessage(msg);
+  setTimeout(() => {
+    chatBox.innerHTML += `<div class='text-green-400'>${reply}</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }, 500);
+};
+
+chatToggle.onclick = () => chatWindow.classList.toggle("hidden");
+
+/* -------- RATING SYSTEM -------- */
+let selectedRating = 0;
+setTimeout(() => { document.getElementById("rating-popup").classList.remove("hidden"); }, 7000);
+
+function rate(num){
+  selectedRating = num;
+  document.querySelectorAll(".star").forEach((s,i) => s.style.color = i < num ? "gold" : "black");
+}
+
+function closeRatingPopup(){ document.getElementById("rating-popup").classList.add("hidden"); }
+
+function submitRating(){
+  if(selectedRating===0) return alert("Please select a rating ⭐");
+  let feedback = document.getElementById("rating-feedback").value || "No feedback";
+  let msg = `⭐ GJW STORE RATING\n\nRating: ${selectedRating} stars\nFeedback: ${feedback}`;
+  window.open(`https://wa.me/2349046536933?text=${encodeURIComponent(msg)}`, "_blank");
+  closeRatingPopup();
+  alert("Thank you! Your review has been submitted ⭐");
+}
+</script>
+
+</body>
+</html>

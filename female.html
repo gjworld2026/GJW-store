@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GJW Store - Female</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white font-sans p-4 sm:p-6">
+
+<!-- HEADER -->
+<header class="flex flex-col sm:flex-row items-center justify-between mb-6 sm:mb-10">
+  <div class="flex items-center gap-3">
+    <img src="imagegwjst.png" alt="GJW Logo" class="h-16 w-16" />
+    <h1 class="text-xl sm:text-2xl font-bold">GJW Store - Female Section 👑</h1>
+  </div>
+
+  <div class="flex gap-4 items-center">
+    <!-- 🔗 BACK TO MALE SECTION (RESTORED) -->
+    <a href="index.html" class="bg-green-600 px-3 py-2 rounded-xl text-white hover:bg-green-700">
+      ⬅ Male Section
+    </a>
+
+    <button id="cart-btn" class="rounded-2xl bg-purple-600 px-4 py-2 mt-2 sm:mt-0">
+      Cart (0)
+    </button>
+  </div>
+</header>
+
+<!-- CATEGORY NAVIGATION -->
+<section class="mb-10 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center" id="categories">
+  <div class="category bg-purple-600 rounded-2xl p-6 cursor-pointer" data-category="caps">
+    <h2 class="text-xl font-bold mb-1">Female Caps 🧢</h2>
+    <p class="text-black font-semibold">Available Now</p>
+  </div>
+  <div class="category bg-purple-600 rounded-2xl p-6 cursor-pointer" data-category="tops">
+    <h2 class="text-xl font-bold mb-1">Female Crop-Tops 👚</h2>
+    <p class="text-black font-semibold">Available Now</p>
+  </div>
+  <div class="category bg-purple-600 rounded-2xl p-6 cursor-pointer" data-category="trousers">
+    <h2 class="text-xl font-bold mb-1">Female Trousers 👖</h2>
+    <p class="text-black font-semibold">Available Now</p>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<main id="products-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-32"></main>
+
+<!-- CART MODAL -->
+<div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center hidden z-50">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md relative">
+    <button id="close-cart" class="absolute top-4 right-4">X</button>
+    <h2 class="text-xl font-bold mb-4">Your Cart</h2>
+    <div id="cart-items" class="space-y-3 max-h-64 overflow-y-auto"></div>
+    <div class="mt-4 flex justify-between font-bold">
+      <span>Total Items:</span> <span id="total-items">0</span>
+    </div>
+    <div class="mt-1 flex justify-between font-bold">
+      <span>Total Price:</span> <span id="total-price">₦0</span>
+    </div>
+    <button id="checkout-whatsapp" class="w-full mt-4 bg-purple-600 rounded-2xl px-4 py-2">
+      📦 Checkout on WhatsApp
+    </button>
+  </div>
+</div>
+
+<!-- NOTIFY ME POPUP -->
+<div id="notify-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden justify-center items-center z-50">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-80">
+    <h2 class="text-xl font-bold mb-4 text-center">🔔 Notify Me</h2>
+    <input id="notify-input" type="text" placeholder="Phone Number" class="w-full p-2 text-black rounded mb-3">
+    <button id="notify-send" class="bg-purple-600 w-full py-2 rounded-xl">Submit</button>
+    <button id="notify-close" class="text-zinc-400 text-center w-full mt-3">Cancel</button>
+  </div>
+</div>
+
+<!-- CHATBOT -->
+<div id="chat-container" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+  <button id="chat-toggle" class="bg-purple-600 w-16 h-16 rounded-full text-white text-2xl">💬</button>
+  <div id="chat-window" class="mt-2 w-72 bg-zinc-900 rounded-2xl shadow-xl p-4 hidden">
+    <h3 class="font-semibold mb-2">GJW AI Assistant</h3>
+    <div id="chat-box" class="h-40 overflow-y-auto space-y-2 mb-3 text-white"></div>
+    <input id="chat-input" type="text" placeholder="Type your message..." class="p-2 rounded-xl text-black w-full mb-2">
+    <button id="send-msg" class="bg-purple-600 w-full py-2 rounded-xl">Send</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="mt-16 border-t border-zinc-800 pt-6 text-center text-sm text-zinc-400">
+  <p class="font-semibold text-white mb-2">Customer Care</p>
+  📞 08133497753 | 📞 09046536933 | 📞 07085944521
+  <p class="mt-4">© 2025 GJW Store. Fit First.</p>
+</footer>
+
+<!-- ===== JAVASCRIPT PRODUCT + CART SYSTEM ===== -->
+<script>
+/* PRODUCT DATA WITH 2 CAPS, 3 TOPS, 1 TROUSER */
+const productData = {
+  caps: [
+    { name: "Female GJW Cap", img: "fgg.png", desc: "Stylish Purple Edition", price: 10000 },
+    { name: "Female GJW Sport Cap", img: "vvv.png", desc: "Sport Fit Design", price: 11000 }
+  ],
+  tops: [
+    { name: "Female GJW Crop-Top", img: "fff.png", desc: "Premium Fit Black Edition", price: 12000 },
+  ],
+  trousers: [
+    { name: "Female GJW Skirt", img: "iii.png", desc: "Premium Soft skirt", price: 15000 }
+  ]
+};
+const productsContainer = document.getElementById("products-container");
+
+function loadCategory(type){
+  productsContainer.innerHTML = "";
+  productData[type].forEach((p,i)=>{
+    productsContainer.innerHTML += `
+      <div class="bg-zinc-900 p-4 rounded-2xl">
+        <img src="${p.img}" class="rounded-xl mb-4">
+        <h2 class="font-bold">${p.name}</h2>
+        <p class="text-zinc-400 text-sm">${p.desc}</p>
+        <p class="font-bold mt-2">₦${p.price}</p>
+        <button class="add-to-cart bg-purple-600 px-3 py-2 rounded-xl mt-3"
+          data-type="${type}" data-product="${i}">
+          Add to Cart
+        </button>
+      </div>`;
+  });
+  activateCart();
+}
+
+document.querySelectorAll(".category").forEach(cat=>{
+  cat.onclick = ()=>{
+    loadCategory(cat.dataset.category);
+  };
+});
+loadCategory("caps");
+
+/* CART SYSTEM */
+let cart=[];
+const cartBtn=document.getElementById("cart-btn");
+const cartModal=document.getElementById("cart-modal");
+const closeCart=document.getElementById("close-cart");
+
+function activateCart(){
+  document.querySelectorAll(".add-to-cart").forEach(btn=>{
+    btn.onclick=e=>{
+      let type=e.target.dataset.type;
+      let product=productData[type][e.target.dataset.product];
+      let found=cart.find(i=>i.name===product.name);
+      found?found.qty++:cart.push({...product,qty:1});
+      updateCart();
+    };
+  });
+}
+
+function updateCart(){
+  let items=document.getElementById("cart-items");
+  items.innerHTML="";
+  cart.forEach((i,index)=>{
+    items.innerHTML+=`
+      <div class="flex justify-between">
+        ${i.name} (x${i.qty}) - ₦${i.qty*i.price}
+        <button onclick="cart.splice(${index},1);updateCart();" class="bg-red-600 px-2 rounded">X</button>
+      </div>`;
+  });
+
+  document.getElementById("total-items").textContent = cart.reduce((a,b)=>a+b.qty,0);
+  document.getElementById("total-price").textContent = "₦" + cart.reduce((a,b)=>a+(b.price*b.qty),0);
+  cartBtn.textContent="Cart ("+cart.reduce((a,b)=>a+b.qty,0)+")";
+}
+cartBtn.onclick=()=>cartModal.classList.remove("hidden");
+closeCart.onclick=()=>cartModal.classList.add("hidden");
+
+document.getElementById("checkout-whatsapp").onclick=()=>{
+  if(cart.length===0)return alert("Your cart is empty!");
+  let order="Hello, I want to order:\n\n";
+  cart.forEach(i=>order+=`${i.name} (x${i.qty}) - ₦${i.price*i.qty}\n`);
+  order+=`\nTotal: ${document.getElementById("total-price").textContent}`;
+  window.open(`https://wa.me/2349046536933?text=${encodeURIComponent(order)}`);
+};
+</script>
+
+</body>
+</html>
